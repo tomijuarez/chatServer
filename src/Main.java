@@ -3,7 +3,7 @@
  */
 public class Main {
     public static void main (String args[]) {
-        int port = 8664;
+        int port = 5656;
         ChatServer server = new ChatServer(port);
         server.serve();
     }
