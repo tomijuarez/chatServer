@@ -109,6 +109,8 @@ public class ClientThread extends Thread {
 
     //Para que los mensajes lleguen en orden consistente.
     public synchronized void sendMsgInChannel(String channel, String user, String message) {
+        System.out.println("MENSAJE DIRECTO A "+channel +" de "+user +" -> "+message);
+
         for(ClientThread client : this.clients) {
             if(client.getCurrentChannel().equals(channel))
                 client.sendResponse(ClientThread.MESSAGE + ClientThread.SEPARATOR + channel + ClientThread.SEPARATOR + user + ClientThread.SEPARATOR + message);
@@ -116,10 +118,16 @@ public class ClientThread extends Thread {
     }
 
     public synchronized void sendPrivateMessage(String channel, String from, String to, String message) {
+        System.out.println("MENSAJE DIRECTO A "+channel +" de "+from+" a "+to +" -> "+message);
+
         for(ClientThread client : this.clients) {
-            if(client.getCurrentChannel().equals(channel) && client.getCurrentUser().equals(from))
+            System.out.println(client.getCurrentChannel());
+            System.out.println(client.getUserName());
+            if(client.getCurrentChannel().equals(channel) && client.getUserName().equals(to)) {
+                System.out.println("MENSAJE DIRECTO A "+channel +" de "+from+" a "+to +" -> "+message);
                 client.sendResponse(ClientThread.MESSAGE + ClientThread.SEPARATOR + channel + ClientThread.SEPARATOR + from + ClientThread.SEPARATOR + to + ClientThread.SEPARATOR + message);
-            break;
+                break;
+            }
         }
     }
 
@@ -150,13 +158,13 @@ public class ClientThread extends Thread {
                     this.toggleUser(msg, chunks[2]);
                     break;
                 case ClientThread.MESSAGE:
-                    if(chunks.length == 3) {
-                        System.out.println("MENSAJE DIRECTO");
-                        this.sendMsgInChannel(msg, chunks[1], chunks[2]);
-                    }
-                    else if(chunks.length == 4) {
+                    if(chunks.length == 4) {
                         System.out.println("MENSAJE GLOBAL");
-                        this.sendPrivateMessage(msg, chunks[1], chunks[2], chunks[4]);
+                        this.sendMsgInChannel(chunks[1], chunks[2], chunks[3]);
+                    }
+                    else if(chunks.length == 5) {
+                        System.out.println("MENSAJE DIRECTO");
+                        this.sendPrivateMessage(chunks[1], chunks[2], chunks[3], chunks[4]);
                     }
                     break;
                 case ClientThread.REGISTER_USER:
